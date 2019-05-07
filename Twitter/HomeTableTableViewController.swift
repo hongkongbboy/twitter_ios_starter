@@ -91,6 +91,8 @@ class HomeTableTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "tweetCell", for: indexPath) as! TweetCellTableViewCell
         
         let user = tweetArray[indexPath.row]["user"] as! NSDictionary
+        let entities = tweetArray[indexPath.row]["entities"] as! NSDictionary
+        
         
         cell.userNameLabel.text = user["name"] as? String
         cell.tweetContent.text = tweetArray[indexPath.row]["text"] as? String
@@ -100,6 +102,18 @@ class HomeTableTableViewController: UITableViewController {
         
         if let imageData = data {
             cell.profileImageView.image = UIImage(data: imageData)
+        }
+        
+        if let media = entities.value(forKey: "media") as? [[String:Any]], !media.isEmpty,
+            let mediaUrl = URL(string: (media[0]["media_url_https"] as? String)!) {
+            let data = try? Data(contentsOf: mediaUrl)
+            let mediaType = (media[0]["type"] as? String)!
+            
+            if mediaType == "photo" {
+                if let mediaData = data {
+                    cell.mediaImageView.image = UIImage(data: mediaData)
+                }
+            }
         }
         
         cell.setFavorite(tweetArray[indexPath.row]["favorited"] as! Bool)
